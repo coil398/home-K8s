@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: kubernetes-dashboard
-  namespace: argocd
+  namespace: argo-cd
 spec:
   destination:
     namespace: kubernetes-dashboard
@@ -12,6 +12,25 @@ spec:
     chart: kubernetes-dashboard
     repoURL: https://kubernetes.github.io/dashboard/
     targetRevision: 6.0.8
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubernetes-dashboard
+  namespace: argo-cd
+spec:
+  destination:
+    namespace: kubernetes-dashboard
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: manifests/kubernetes-dashboard
+    repoURL: https://github.com/coil398/home-k8s
+    targetRevision: main
   syncPolicy:
     automated: {}
     syncOptions:
