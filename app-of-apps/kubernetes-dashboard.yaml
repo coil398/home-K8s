@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: app-of-apps
+  name: kubernetes-dashboard
   namespace: argocd
 spec:
   destination:
-    namespace: argocd
+    namespace: default
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: manifests
-    repoURL: https://github.com/coil398/home-k8s
-    targetRevision: main
+    chart: kubernetes-dashboard
+    repoURL: https://kubernetes.github.io/dashboard/
+    targetRevision: 6.0.8
   syncPolicy:
     automated: {}
     syncOptions:
