@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: echo-server
+  namespace: argocd
+spec:
+  destination:
+    namespace: echo-server
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: manifests/echo-server
+    repoURL: https://github.com/coil398/home-k8s
+    targetRevision: main
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
