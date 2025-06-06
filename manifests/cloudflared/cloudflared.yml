@@ -88,6 +88,18 @@ data:
     # from the internet to cloudflared, run `cloudflared tunnel route dns <tunnel> <hostname>`.
     # E.g. `cloudflared tunnel route dns example-tunnel tunnel.example.com`.
     ingress:
+    - hostname: master.k8s.coil398.io
+      service: https://172.28.6.100:16443
+      originRequest:
+        noTLSVerify: true
+    - hostname: dashboard.k8s.coil398.io
+      service: https://dashboard-cloudflared.kube-system.svc.cluster.local
+      originRequest:
+        noTLSVerify: true
+    - hostname: argocd.k8s.coil398.io
+      service: https://argocd-cloudflared.argocd.svc.cluster.local
+      originRequest:
+        noTLSVerify: true
     - hostname: k8s.coil398.io
       service: hello_world
     - service: http_status:404

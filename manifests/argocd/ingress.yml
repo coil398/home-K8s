@@ -19,3 +19,16 @@ spec:
     app.kubernetes.io/instance: argo-cd
     app.kubernetes.io/name: argocd-server
   sessionAffinity: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-cloudflared
+spec:
+  selector:
+    app.kubernetes.io/name: argocd-server
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8080
+  type: ClusterIP
