@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: master-cloudflared
+  namespace: default
+spec:
+  clusterIP: None
+  ports:
+    - port: 443
+      targetPort: 443
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: master-cloudflared
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 172.28.6.100
+    ports:
+      - port: 443
