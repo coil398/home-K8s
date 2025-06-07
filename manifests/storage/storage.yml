@@ -24,7 +24,7 @@ spec:
   replicaAutoBalance: disabled
   dataLocality: disabled
   diskSelector:
-    - noncritical
+    - shared
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -35,7 +35,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1000GB
+      storage: 931Gi
   volumeName: db-volume
   storageClassName: longhorn
 ---
@@ -48,5 +48,6 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10GB
+      storage: 10Gi
   volumeName: test-volume
+  storageClassName: longhorn
