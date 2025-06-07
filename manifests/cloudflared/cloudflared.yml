@@ -100,6 +100,8 @@ data:
       service: https://argocd-cloudflared.argocd.svc.cluster.local
       originRequest:
         noTLSVerify: true
+    - hostname: longhorn.coil398.io
+      service: http://longhorn-frontend.longhorn-system.svc.cluster.local:80
     - hostname: k8s.coil398.io
       service: hello_world
     - service: http_status:404
