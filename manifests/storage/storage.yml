@@ -1,11 +1,52 @@
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: db-volume
+spec:
+  numberOfReplicas: 2
+  size: "1000000000000"
+  frontend: blockdev
+  accessMode: rwx
+  replicaAutoBalance: best-effort
+  dataLocality: best-effort
+  diskSelector:
+    - shared
+---
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: test-volume
+spec:
+  numberOfReplicas: 1
+  size: "10000000000"
+  frontend: blockdev
+  accessMode: rwo
+  replicaAutoBalance: disabled
+  dataLocality: disabled
+  diskSelector:
+    - noncritical
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: shared-pvc
+  name: db-pvc
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1000Gi
+      storage: 1000GB
+  volumeName: db-volume
   storageClassName: longhorn
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10GB
+  volumeName: test-volume
