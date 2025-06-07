@@ -4,7 +4,7 @@ metadata:
   name: db-volume
 spec:
   numberOfReplicas: 2
-  size: "1000000000000"
+  size: "999653638144"
   frontend: blockdev
   accessMode: rwx
   replicaAutoBalance: best-effort
@@ -18,7 +18,7 @@ metadata:
   name: test-volume
 spec:
   numberOfReplicas: 1
-  size: "10000000000"
+  size: "10737418240"
   frontend: blockdev
   accessMode: rwo
   replicaAutoBalance: disabled
