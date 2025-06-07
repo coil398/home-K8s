@@ -16,3 +16,8 @@ spec:
     automated: {}
     syncOptions:
       - CreateNamespace=true
+  ignoreDifferences:
+    - group: longhorn.io
+      kind: Volume
+      jsonPointers:
+        - /spec/size
