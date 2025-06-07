@@ -1,0 +1,27 @@
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: shared-volume
+spec:
+  numberOfReplicas: 2
+  size: "5905580032000"
+  frontend: blockdev
+  accessMode: rwx
+  replicaAutoBalance: best-effort
+  dataLocality: best-effort
+  diskSelector:
+    - shared
+---
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: noncritical-volume
+spec:
+  numberOfReplicas: 1
+  size: "2147483648000"
+  frontend: blockdev
+  accessMode: rwo
+  replicaAutoBalance: disabled
+  dataLocality: disabled
+  diskSelector:
+    - noncritical
