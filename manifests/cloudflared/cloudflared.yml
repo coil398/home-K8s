@@ -96,6 +96,10 @@ data:
       service: https://dashboard-cloudflared.kube-system.svc.cluster.local
       originRequest:
         noTLSVerify: true
+    - hostname: k8s-dashboard.coil398.io
+      service: https://dashboard-cloudflared.kube-system.svc.cluster.local
+      originRequest:
+        noTLSVerify: true
     - hostname: argocd.k8s.coil398.io
       service: https://argocd-cloudflared.argocd.svc.cluster.local
       originRequest:
