@@ -21,8 +21,6 @@ spec:
     helm:
       values: |
         replicaCount: 1
-        auth:
-          enabled: false
         service:
           type: ClusterIP
           port: 8080
@@ -34,3 +32,9 @@ spec:
           size: 10Gi
           storageClass: "longhorn-r2"
           accessMode: ReadWriteOnce
+        extraArgs:
+          - --auth
+          - none
+          - --disable-telemetry
+          - --bind-addr
+          - 0.0.0.0:8080
