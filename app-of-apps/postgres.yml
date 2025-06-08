@@ -15,18 +15,21 @@ spec:
     syncOptions:
       - CreateNamespace=true
   source:
-    repoURL: https://charts.bitnami.com/bitnami
-    chart: postgresql
-    targetRevision: 15.5.3
+    repoURL: registry-1.docker.io/bitnamicharts
+    chart: postgresql-ha
+    targetRevision: 16.0.11
     helm:
       values: |
-        primary:
-          persistence:
-            enabled: true
-            existingClaim: db-pvc
-        volumePermissions:
-          enabled: true
-        auth:
+        postgresql:
+          existingClaim: db-pvc
           username: postgres
           password: postgres
           database: db
+          replicaCount: 2
+        pgpool:
+          enabled: true
+          replicaCount: 1
+          adminUsername: admin
+          adminPassword: postgres
+        volumePermissions:
+          enabled: true
