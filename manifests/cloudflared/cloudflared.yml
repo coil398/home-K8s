@@ -104,6 +104,8 @@ data:
       service: http://longhorn-frontend.longhorn-system.svc.cluster.local:80
     - hostname: pgladmin.coil398.io
       service: http://pgadmin-pgadmin4.pgadmin.svc.cluster.local:80
+    - hostname: vscode.coil398.io
+      service: http://code-server.code-server.svc.cluster.local:8080
     - hostname: k8s.coil398.io
       service: hello_world
     - service: http_status:404
