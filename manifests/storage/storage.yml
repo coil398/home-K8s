@@ -22,3 +22,16 @@ spec:
     requests:
       storage: 1000Gi
   storageClassName: longhorn-r2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-docker-data
+  namespace: code-server
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: longhorn-r2
