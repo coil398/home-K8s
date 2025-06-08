@@ -1,30 +1,14 @@
-apiVersion: longhorn.io/v1beta2
-kind: Volume
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
 metadata:
-  name: db-volume
-spec:
-  numberOfReplicas: 2
-  size: "999653638144"
-  frontend: blockdev
-  accessMode: rwx
-  replicaAutoBalance: best-effort
-  dataLocality: best-effort
-  diskSelector:
-    - shared
----
-apiVersion: longhorn.io/v1beta2
-kind: Volume
-metadata:
-  name: test-volume
-spec:
-  numberOfReplicas: 1
-  size: "10737418240"
-  frontend: blockdev
-  accessMode: rwx
-  replicaAutoBalance: disabled
-  dataLocality: disabled
-  diskSelector:
-    - shared
+  name: longhorn-r2
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+parameters:
+  numberOfReplicas: "2"
+  staleReplicaTimeout: "2880" # 48 hours in minutes
+  fromBackup: ""
+  fsType: "ext4"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -36,19 +20,5 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 931Gi
-  volumeName: db-volume
-  storageClassName: longhorn
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: test-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-  volumeName: test-volume
-  storageClassName: longhorn
+      storage: 1000Gi
+  storageClassName: longhorn-r2
