@@ -39,10 +39,15 @@ spec:
           - --bind-addr
           - 0.0.0.0:8080
         securityContext:
-          privileged: true
           runAsUser: 0
         extraVars:
           - name: DOCKER_TLS_CERTDIR
             value: ""
           - name: DOCKER_HOST
             value: unix:///var/run/docker.sock
+          - name: DOCKER_DATA_ROOT
+            value: /var/lib/docker
+        extraVolumeMounts:
+          - name: docker-data
+            mountPath: /var/lib/docker
+            existingClaim: shared-docker-data
