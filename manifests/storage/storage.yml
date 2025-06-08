@@ -20,7 +20,7 @@ spec:
   numberOfReplicas: 1
   size: "10737418240"
   frontend: blockdev
-  accessMode: rwo
+  accessMode: rwx
   replicaAutoBalance: disabled
   dataLocality: disabled
   diskSelector:
