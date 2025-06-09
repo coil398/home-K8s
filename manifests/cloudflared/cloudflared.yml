@@ -108,6 +108,10 @@ data:
       service: http://code-server.code-server.svc.cluster.local:8080
     - hostname: grafana.coil398.io
       service: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
+      originRequest:
+        noTLSVerify: true
+        originServerName: grafana.coil398.io
+        httpHostHeader: grafana.coil398.io
     - hostname: prometheus.coil398.io
       service: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
     - hostname: k8s.coil398.io
