@@ -51,3 +51,24 @@ spec:
           - name: docker-data
             mountPath: /var/lib/docker
             existingClaim: shared-docker-data
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: code-server-ingress
+  namespace: argocd
+spec:
+  destination:
+    namespace: code-server
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: manifests/code-server
+    repoURL: https://github.com/coil398/home-k8s
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

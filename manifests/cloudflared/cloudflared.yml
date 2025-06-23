@@ -105,7 +105,7 @@ data:
     - hostname: pgadmin.coil398.io
       service: http://pgadmin-pgadmin4.pgadmin.svc.cluster.local:80
     - hostname: vscode.coil398.io
-      service: http://code-server.code-server.svc.cluster.local:8080
+      service: http://code-server-internal.code-server.svc.cluster.local:8080
     - hostname: grafana.coil398.io
       service: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
       originRequest:
