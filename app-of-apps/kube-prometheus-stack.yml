@@ -17,10 +17,10 @@ spec:
           adminPassword: password
           service:
             type: ClusterIP
+          replicas: 2
           persistence:
-            enabled: true
-            size: 10Gi
-            storageClassName: longhorn-r2
+            enabled: false
+          envFromSecret: grafana-db-secret
           grafana.ini:
             server:
               root_url: https://grafana.coil398.io/
@@ -30,9 +30,24 @@ spec:
               domain: grafana.coil398.io
             security:
               allow_embedding: true
+            database:
+              type: postgres
+              host: postgres-postgresql-ha-pgpool.postgres.svc.cluster.local:5432
+              name: grafana
+              user: grafana
+              password: ${database-password}
+              ssl_mode: disable
+              max_idle_conn: 2
+              max_open_conn: 10
+              conn_max_lifetime: 14400
+              log_queries: false
+            session:
+              provider: postgres
+              provider_config: user=grafana password=${database-password} host=postgres-postgresql-ha-pgpool.postgres.svc.cluster.local port=5432 dbname=grafana sslmode=disable
 
         prometheus:
           prometheusSpec:
+            replicas: 2
             retention: 30d
             retentionSize: 50GB
             storageSpec:
@@ -46,6 +61,7 @@ spec:
 
         alertmanager:
           alertmanagerSpec:
+            replicas: 3
             storage:
               volumeClaimTemplate:
                 spec:
@@ -66,3 +82,24 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/coil398/home-k8s
+    path: manifests/grafana
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
