@@ -48,7 +48,7 @@ spec:
         prometheus:
           prometheusSpec:
             replicas: 2
-            serviceMonitorSelectorNilUsesHelmValues: false
+            serviceMonitorSelectorNilUsesHelmValues: true
             serviceMonitorNamespaceSelector: {}
             retention: 30d
             retentionSize: 50GB
