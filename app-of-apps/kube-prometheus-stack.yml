@@ -34,7 +34,7 @@ spec:
               type: postgres
               host: postgres-postgresql-ha-pgpool.postgres.svc.cluster.local:5432
               name: grafana
-              user: grafana
+              user: postgres
               password: ${database-password}
               ssl_mode: disable
               max_idle_conn: 2
@@ -43,7 +43,7 @@ spec:
               log_queries: false
             session:
               provider: postgres
-              provider_config: user=grafana password=${database-password} host=postgres-postgresql-ha-pgpool.postgres.svc.cluster.local port=5432 dbname=grafana sslmode=disable
+              provider_config: user=postgres password=${database-password} host=postgres-postgresql-ha-pgpool.postgres.svc.cluster.local port=5432 dbname=grafana sslmode=disable
 
         prometheus:
           prometheusSpec:
