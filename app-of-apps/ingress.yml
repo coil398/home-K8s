@@ -19,6 +19,8 @@ spec:
             enabled: true
             serviceMonitor:
               enabled: true
+              additionalLabels:
+                release: kube-prometheus-stack
           config:
             log-level: "1"
   destination:
