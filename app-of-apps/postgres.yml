@@ -36,3 +36,14 @@ spec:
           adminPassword: postgres
         volumePermissions:
           enabled: true
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+            interval: 30s
+            labels:
+              release: kube-prometheus-stack
+          service:
+            annotations:
+              prometheus.io/scrape: "true"
+              prometheus.io/port: "9187"

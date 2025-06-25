@@ -21,7 +21,6 @@ spec:
               enabled: true
           config:
             log-level: "1"
-          allowSnippetAnnotations: true
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
