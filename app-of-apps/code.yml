@@ -24,7 +24,7 @@ spec:
         service:
           type: ClusterIP
           port: 8080
-          targetPort: 8080
+          targetPort: 80
         ingress:
           enabled: false
         persistence:
@@ -37,7 +37,7 @@ spec:
           - none
           - --disable-telemetry
           - --bind-addr
-          - 0.0.0.0:8080
+          - 127.0.0.1:8080
         securityContext:
           runAsUser: 0
         extraVars:
@@ -51,6 +51,21 @@ spec:
           - name: docker-data
             mountPath: /var/lib/docker
             existingClaim: shared-docker-data
+        extraContainers: |
+          - name: security-proxy
+            image: nginx:alpine
+            ports:
+              - containerPort: 80
+                name: http
+            volumeMounts:
+              - name: nginx-config
+                mountPath: /etc/nginx/nginx.conf
+                subPath: nginx.conf
+        extraConfigmapMounts:
+          - name: nginx-config
+            mountPath: /etc/nginx/nginx.conf
+            configMap: security-proxy-config
+            subPath: nginx.conf
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -72,3 +87,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+
