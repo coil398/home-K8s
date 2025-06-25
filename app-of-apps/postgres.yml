@@ -20,11 +20,11 @@ spec:
     targetRevision: 16.0.11
     helm:
       values: |
+        persistence:
+          enabled: true
+          storageClass: longhorn-r2
+          size: 500Gi
         postgresql:
-          persistence:
-            enabled: true
-            storageClass: longhorn-r2
-            size: 500Gi
           username: postgres
           password: postgres
           database: db
