@@ -23,7 +23,8 @@ spec:
         postgresql:
           persistence:
             enabled: true
-            existingClaim: db-pvc
+            storageClass: longhorn-r2
+            size: 500Gi
           username: postgres
           password: postgres
           database: db
