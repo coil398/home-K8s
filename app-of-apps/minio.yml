@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: minio
+    targetRevision: 17.0.9
+    helm:
+      values: |
+        auth:
+          rootUser: admin
+          rootPassword: password
+        persistence:
+          enabled: true
+          size: 1000Gi
+          storageClass: "longhorn-r2"
+        service:
+          type: ClusterIP
+        console:
+          enabled: true
+          service:
+            type: ClusterIP
+        ingress:
+          enabled: false
+        metrics:
+          serviceMonitor:
+            enabled: true
+            namespace: minio
+            interval: 30s
+            labels:
+              release: kube-prometheus-stack
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: minio
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
