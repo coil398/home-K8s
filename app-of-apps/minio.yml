@@ -27,6 +27,7 @@ spec:
         ingress:
           enabled: false
         metrics:
+          enabled: true
           serviceMonitor:
             enabled: true
             namespace: minio
