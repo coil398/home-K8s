@@ -40,6 +40,18 @@ spec:
             labels:
               release: kube-prometheus-stack
 
+        mongodbexpress:
+          enabled: true
+          service:
+            type: ClusterIP
+            port: 8081
+          auth:
+            username: ""
+            password: ""
+          mongodb:
+            auth:
+              enabled: false
+
   destination:
     server: https://kubernetes.default.svc
     namespace: mongodb
