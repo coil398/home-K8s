@@ -114,6 +114,10 @@ data:
         httpHostHeader: grafana.coil398.io
     - hostname: prometheus.coil398.io
       service: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+    - hostname: minio.coil398.io
+      service: http://minio.minio.svc.cluster.local:9000
+    - hostname: minio-console.minio.coil398.io
+      service: http://minio-console.minio.svc.cluster.local:9090
     - hostname: k8s.coil398.io
       service: hello_world
     - service: http_status:404
