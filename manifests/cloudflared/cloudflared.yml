@@ -119,7 +119,7 @@ data:
     - hostname: minio-console.minio.coil398.io
       service: http://minio-console.minio.svc.cluster.local:9090
     - hostname: redisinsight.coil398.io
-      service: redisinsight-service.redis.svc.cluster.local:80
+      service: http://redisinsight-service.redis.svc.cluster.local:80
     - hostname: k8s.coil398.io
       service: hello_world
     - service: http_status:404
