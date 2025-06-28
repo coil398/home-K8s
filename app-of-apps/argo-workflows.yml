@@ -1,6 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  name: argo-workflows-secret
+  namespace: argocd
+spec:
+  destination:
+    namespace: argo-workflows
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: manifests/argo-workflows
+    repoURL: https://github.com/coil398/home-k8s
+    targetRevision: main
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
   name: argo-workflows
   namespace: argocd
 spec:
@@ -24,18 +43,30 @@ spec:
           metricsConfig:
             enabled: true
           persistence:
+            archive: true
             postgresql:
-              host: "postgres-postgresql-ha-pgpool"
+              host: "postgres-postgresql-ha-pgpool.postgres.svc.cluster.local"
               port: 5432
               database: "argo_workflows"
-              username: "postgres"
-              password: "postgres"
-            artifactRepository:
-              s3:
-                endpoint: "minio.minio.svc.cluster.local:9000"
-                bucket: "argo-workflows"
-                insecure: true
-                useSDKCreds: false
+              tableName: "argo_workflows"
+              userNameSecret:
+                name: "argo-postgres-secret"
+                key: "username"
+              passwordSecret:
+                name: "argo-postgres-secret"
+                key: "password"
+        artifactRepository:
+          s3:
+            endpoint: "minio.minio.svc.cluster.local:9000"
+            bucket: "argo-workflows"
+            insecure: true
+            useSDKCreds: true
+            accessKeySecret:
+              name: "argo-dummy-secret"
+              key: "accesskey"
+            secretKeySecret:
+              name: "argo-dummy-secret"
+              key: "secretkey"
         server:
           enabled: true
           replicas: 2
