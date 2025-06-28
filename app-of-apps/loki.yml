@@ -48,7 +48,7 @@ spec:
             compaction_interval: 10m
             delete_request_store: s3
         write:
-          replicas: 3
+          replicas: 2
           persistence:
             enabled: true
             size: 100Gi
