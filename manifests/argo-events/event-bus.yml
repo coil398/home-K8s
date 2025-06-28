@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: default
+spec:
+  nats:
+    native:
+      replicas: 3
+      persistence:
+        storageClass: longhorn-r2
+        accessMode: ReadWriteOnce
+        volumeSize: 10Gi
