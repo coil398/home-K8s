@@ -12,8 +12,10 @@ spec:
     helm:
       values: |
         deploymentMode: SimpleScalable
+        minio:
+          enabled: false
         loki:
-          commandConfig:
+          commonConfig:
             replication_factor: 2
           storage:
             type: s3
@@ -22,8 +24,8 @@ spec:
               ruler: loki-ruler
               admin: loki-admin
             s3:
-              endpoint: http://minio.minio:9000
-              region: us-east1-1
+              endpoint: http://minio.minio.svc.cluster.local:9000
+              region: us-east-1
               accessKeyId: admin
               secretAccessKey: password
               s3ForcePathStyle: true
@@ -44,25 +46,25 @@ spec:
             retention_delete_delay: 2h
             retention_delete_worker_count: 150
             compaction_interval: 10m
-          write:
-            replicas: 2
-            persistence:
-              enabled: true
-              size: 100Gi
-          read:
-            replicas: 2
-            persistence:
-              enabled: true
-              size: 100Gi
-          backend:
-            replicas: 2
-            persistence:
-              enabled: true
-              size: 100Gi
-          serviceMonitor:
+        write:
+          replicas: 3
+          persistence:
             enabled: true
-            labels:
-              release: kube-prometheus-stack
+            size: 100Gi
+        read:
+          replicas: 2
+          persistence:
+            enabled: true
+            size: 100Gi
+        backend:
+          replicas: 2
+          persistence:
+            enabled: true
+            size: 100Gi
+        serviceMonitor:
+          enabled: true
+          labels:
+            release: kube-prometheus-stack
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
