@@ -46,6 +46,7 @@ spec:
             retention_delete_delay: 2h
             retention_delete_worker_count: 150
             compaction_interval: 10m
+            delete_request_store: s3
         write:
           replicas: 3
           persistence:
