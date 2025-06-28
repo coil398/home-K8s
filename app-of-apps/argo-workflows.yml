@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-workflows
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-workflows
+    targetRevision: "*"
+    helm:
+      values: |
+        images:
+          pullPolicy: IfNotPresent
+        crds:
+          install: true
+          keep: true
+        controller:
+          replicas: 2
+          workflowNamespaces:
+            - argo-workflows
+            - default
+          metricsConfig:
+            enabled: true
+          persistence:
+            postgresql:
+              host: "postgres-postgresql-ha-pgpool"
+              port: 5432
+              database: "argo_workflows"
+              username: "postgres"
+              password: "postgres"
+            artifactRepository:
+              s3:
+                endpoint: "minio.minio.svc.cluster.local:9000"
+                bucket: "argo-workflows"
+                insecure: true
+                useSDKCreds: false
+        server:
+          enabled: true
+          replicas: 2
+          authModes:
+            - server
+          secure: false
+          service:
+            type: ClusterIP
+            port: 2746
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-workflows
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
