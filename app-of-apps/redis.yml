@@ -29,7 +29,8 @@ spec:
         sentinel:
           enabled: true
           masterSet: mymaster
-          quorum: 1
+          quorum: 2
+          replicas: 3
         service:
           type: ClusterIP
         metrics:
@@ -40,10 +41,6 @@ spec:
             interval: 30s
             labels:
               release: kube-prometheus-stack
-        redisCommander:
-          enabled: true
-          service:
-            type: ClusterIP
   destination:
     server: https://kubernetes.default.svc
     namespace: redis
