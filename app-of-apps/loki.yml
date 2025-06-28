@@ -16,7 +16,27 @@ spec:
           commandConfig:
             replication_factor: 2
           storage:
-            type: filesystem
+            type: s3
+            bucketNames:
+              chunks: loki-chunks
+              ruler: loki-ruler
+              admin: loki-admin
+            s3:
+              endpoint: http://minio.minio:9000
+              region: us-east1-1
+              accessKeyId: admin
+              secretAccessKey: password
+              s3ForcePathStyle: true
+              insecure: true
+          schemaConfig:
+            configs:
+              - from: "2024-04-01"
+                store: tsdb
+                object_store: s3
+                schema: v13
+                index:
+                  prefix: loki_index_
+                  period: 24h
           limits_config:
             retention_period: 30d
           compactor:
