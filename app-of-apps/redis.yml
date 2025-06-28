@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: redis
+    targetRevision: 21.2.6
+    helm:
+      values: |
+        architecture: replication
+        auth:
+          enabled: false
+        master:
+          count: 1
+          persistence:
+            enabled: true
+            size: 50Gi
+            storageClass: "longhorn-r2"
+        replica:
+          replicaCount: 1
+          persistence:
+            enabled: true
+            size: 50Gi
+            storageClass: "longhorn-r2"
+        sentinel:
+          enabled: true
+          masterSet: mymaster
+          quorum: 1
+        service:
+          type: ClusterIP
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+            namespace: redis
+            interval: 30s
+            labels:
+              release: kube-prometheus-stack
+        redisCommander:
+          enabled: true
+          service:
+            type: ClusterIP
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: redis
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
