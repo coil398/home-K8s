@@ -11,6 +11,28 @@ spec:
     targetRevision: "*"
     helm:
       values: |
+        rbac:
+          create: true
+        serviceAccount:
+          create: true
+          name: alloy
+        clusterRole:
+          create: true
+          rules:
+            - apiGroups: [""]
+              resources: ["pods", "pods/log", "nodes", "services", "endpoints", "namespaces"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: [""]
+              resources: ["configmaps", "secrets"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["apps"]
+              resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["monitoring.coreos.com"]
+              resources: ["prometheusrules"]
+              verbs: ["get", "list", "watch"]
+        controller:
+          type: daemonset
         alloy:
           configMap:
             content: |
@@ -20,14 +42,15 @@ spec:
               loki.source.kubernetes "pods" {
                 targets = discovery.kubernetes.pods.targets
                 forward_to = [loki.write.default.receiver]
+                clustering {
+                  enabled = true
+                }
               }
               loki.write "default" {
                 endpoint {
                   url = "http://loki-gateway/loki/api/v1/push"
                 }
               }
-        controller:
-          type: daemonset
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
