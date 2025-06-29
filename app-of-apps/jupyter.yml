@@ -20,10 +20,8 @@ spec:
             type: ClusterIP
             port: 80
         singuleuser:
-          image:
-            registry: docker.io
-            repository: bitnami/jupyter-base-notebook
-            tag: "latest"
+          imagePuller:
+            enabled: false
           extraEnvVars:
             - name: JUPYTER_ENABLE_LAB
               value: "yes"
