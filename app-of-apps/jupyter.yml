@@ -13,6 +13,13 @@ spec:
       values: |
         hub:
           configuration: |
+            Chart:
+              Name: {{ .Chart.Name }}
+              Version: {{ .Chart.Version }}
+            Release:
+              Name: {{ .Release.Name }}
+              Namespace: {{ .Release.Namespace }}
+              Service: {{ .Release.Service }}
             hub:
               config:
                 JupyterHub:
