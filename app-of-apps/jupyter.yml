@@ -26,7 +26,7 @@ spec:
                   admin_access: true
                   authenticator_class: jupyterhub.auth.NullAuthenticator
                 Authenticator:
-                  auto_login: true
+                  allow_all: true
               db:
                 type: postgres
                 url: postgresql://postgres:postgres@postgres-postgresql-ha-pgpool.postgres.svc.cluster.local
