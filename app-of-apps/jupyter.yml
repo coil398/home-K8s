@@ -27,13 +27,19 @@ spec:
                   authenticator_class: jupyterhub.auth.NullAuthenticator
                 Authenticator:
                   auto_login: true
+              db:
+                type: postgres
+                url: postgresql://postgres:postgres@postgres-postgresql-ha-pgpool.postgres.svc.cluster.local
+            singleuser:
+              cloudMetadata:
+                blockWithIptables: false
         proxy:
           service:
             type: ClusterIP
             port: 80
-        singuleuser:
-          imagePuller:
-            enabled: false
+        imagePuller:
+          enabled: false
+        singleuser:
           extraEnvVars:
             - name: JUPYTER_ENABLE_LAB
               value: "yes"
