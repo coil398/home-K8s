@@ -36,11 +36,50 @@ spec:
         alloy:
           configMap:
             content: |
-              discovery.kubernetes "pods" {
+              // Kubernetes Podの発見
+              discovery.kubernetes "pod" {
                 role = "pod"
+                namespaces {
+                  own_namespace = false
+                  names = []  // 全てのnamespaceを対象
+                }
+              }
+              discovery.relabel "pod_logs" {
+                targets = discovery.kubernetes.pod.targets
+                rule {
+                  source_labels = ["__meta_kubernetes_namespace"]
+                  action = "replace"
+                  target_label = "namespace"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_name"]
+                  action = "replace"
+                  target_label = "pod"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_container_name"]
+                  action = "replace"
+                  target_label = "container"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+                  action = "replace"
+                  target_label = "app"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_node_name"]
+                  action = "replace"
+                  target_label = "node"
+                }
+                rule {
+                  source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
+                  action = "replace"
+                  separator = "/"
+                  target_label = "job"
+                }
               }
               loki.source.kubernetes "pods" {
-                targets = discovery.kubernetes.pods.targets
+                targets = discovery.relabel.pod_logs.output
                 forward_to = [loki.write.default.receiver]
                 clustering {
                   enabled = true
@@ -48,7 +87,10 @@ spec:
               }
               loki.write "default" {
                 endpoint {
-                  url = "http://loki-gateway/loki/api/v1/push"
+                  url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+                }
+                wal {
+                  enabled = true
                 }
               }
   destination:
@@ -59,4 +101,4 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=true      - CreateNamespace=true
