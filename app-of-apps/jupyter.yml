@@ -13,8 +13,13 @@ spec:
       values: |
         hub:
           configuration: |
-            c.JupyterHub.authenticator_class = 'jupyterhub.auth.NullAuthenticator'
-            c.Authenticator.auto_login = True
+            hub:
+              config:
+                JupyterHub:
+                  admin_access: true
+                  authenticator_class: jupyterhub.auth.NullAuthenticator
+                Authenticator:
+                  auto_login: true
         proxy:
           service:
             type: ClusterIP
