@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jupyterlab
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: jupyterhub
+    targetRevision: "*"
+    helm:
+      values: |
+        hub:
+          configuration: |
+            c.JupyterHub.authenticator_class = 'jupyterhub.auth.NullAuthenticator'
+            c.Authenticator.auto_login = True
+        proxy:
+          service:
+            type: ClusterIP
+            port: 80
+        singuleuser:
+          image:
+            registry: docker.io
+            repository: bitnami/jupyter-base-notebook
+            tag: "latest"
+          extraEnvVars:
+            - name: JUPYTER_ENABLE_LAB
+              value: "yes"
+            - name: PIP_CACHE_DIR
+              value: "/home/jovyan/.pip-cache"
+        postgresql:
+          enabled: false
+        externalDatabase:
+          host: postgres-postgresql-ha-pgpool.postgres.svc.cluster.local
+          port: 5432
+          user: postgres
+          database: jupyterhub
+          existingSecret: ""
+          password: postgres
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: jupyter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
