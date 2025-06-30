@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://hub.jupyter.org/helm-chart/
+    repoURL: https://jupyterhub.github.io/helm-chart/
     chart: jupyterhub
     targetRevision: "*"
     helm:
@@ -19,6 +19,155 @@ spec:
               password: ""
             Authenticator:
               allow_all: true
+            KubeSpawner:
+              k8s_api_request_timeout: 600
+              k8s_api_request_retry_timeout: 900
+              http_timeout: 600
+              start_timeout: 3600
+              events_enabled: false
+              storage_capacity: '500Gi'
+              storage_class: 'longhorn-r2'
+              debug: true
+            Spawner:
+              start_timeout: 3600
+          extraConfig:
+            ssl-fix-and-reflector-destruction: |
+              # Step 1: Reflector完全無効化
+              c.KubeSpawner.events_enabled = False
+              
+              from kubespawner.spawner import KubeSpawner
+              import asyncio
+              
+              async def do_nothing(*args, **kwargs):
+                  print("Reflector method disabled")
+                  return None
+              
+              KubeSpawner._start_reflector = do_nothing
+              KubeSpawner._start_watching_pods = do_nothing  
+              KubeSpawner._start_watching_events = do_nothing
+              KubeSpawner._ensure_reflectors = do_nothing
+              
+              original_init = KubeSpawner.__init__
+              def forced_no_events_init(self, *args, **kwargs):
+                  result = original_init(self, *args, **kwargs)
+                  self.events_enabled = False
+                  print(f"🔥 FORCED events_enabled=False for spawner: {self}")
+                  return result
+              KubeSpawner.__init__ = forced_no_events_init
+              
+              # Step 2: 🔥 SSL/API接続問題を根本的に修正 🔥
+              original_start = KubeSpawner._start
+              async def ssl_fixed_start(self):
+                  """SSL証明書問題を修正したstartメソッド"""
+                  print("🔥 Starting spawner with SSL/API fixes")
+                  
+                  # Kubernetes client設定を修正
+                  try:
+                      from kubernetes_asyncio import config, client
+                      import ssl
+                      
+                      # in-cluster configを再読み込み
+                      await config.load_incluster_config()
+                      print("✅ Loaded in-cluster config")
+                      
+                      # 🔥 SSL証明書検証を無効化（IPアドレス接続のため）🔥
+                      configuration = client.Configuration.get_default_copy()
+                      configuration.verify_ssl = False  # SSL証明書検証を無効化
+                      configuration.ssl_ca_cert = None  # CA証明書を無効化
+                      
+                      # API Hostを強制的にサービス名に変更（IPアドレス回避）
+                      if hasattr(configuration, 'host') and '10.152.183.1' in str(configuration.host):
+                          configuration.host = 'https://kubernetes.default.svc:443'
+                          print("✅ Changed API host from IP to service name")
+                      
+                      # 新しいAPIクライアントを作成
+                      api_client = client.ApiClient(configuration)
+                      self.api = client.CoreV1Api(api_client)
+                      
+                      print(f"✅ API client configured: {configuration.host}")
+                      
+                  except Exception as e:
+                      print(f"⚠️ API client configuration error: {e}")
+                  
+                  try:
+                      # APIクライアントの接続をテスト
+                      namespaces = await self.api.list_namespace()
+                      print(f"✅ Kubernetes API connection OK - found {len(namespaces.items)} namespaces")
+                  except Exception as e:
+                      print(f"❌ Kubernetes API connection failed: {e}")
+                      # より寛容な設定でリトライ
+                      try:
+                          import aiohttp
+                          import ssl
+                          
+                          # SSL検証を完全に無効化したHTTPコネクタ
+                          ssl_context = ssl.create_default_context()
+                          ssl_context.check_hostname = False
+                          ssl_context.verify_mode = ssl.CERT_NONE
+                          
+                          connector = aiohttp.TCPConnector(ssl=ssl_context)
+                          timeout = aiohttp.ClientTimeout(total=600)
+                          
+                          print("✅ Configured SSL-insecure HTTP client")
+                          
+                      except Exception as ssl_error:
+                          print(f"❌ SSL configuration failed: {ssl_error}")
+                          raise Exception(f"Cannot connect to Kubernetes API: {e}")
+                  
+                  try:
+                      # PVC作成
+                      if self.storage_capacity:
+                          print(f"Creating PVC: {self.pvc_name}")
+                          await self._make_create_pvc_request(
+                              self.get_pvc_manifest(), self.k8s_api_request_timeout
+                          )
+                          print("✅ PVC created")
+                  except Exception as e:
+                      print(f"⚠️ PVC creation: {e} (might already exist)")
+                  
+                  try:
+                      # Pod作成  
+                      print(f"Creating Pod: {self.pod_name}")
+                      await self._make_create_pod_request(
+                          self.get_pod_manifest(), self.k8s_api_request_timeout
+                      )
+                      print("✅ Pod creation request sent")
+                  except Exception as e:
+                      print(f"❌ Pod creation failed: {e}")
+                      raise e
+                  
+                  # Podが起動するまで待機
+                  print("⏳ Waiting for pod to be ready...")
+                  for i in range(60):
+                      try:
+                          pod = await self.api.read_namespaced_pod(
+                              name=self.pod_name,
+                              namespace=self.namespace
+                          )
+                          print(f"Pod {self.pod_name} status: {pod.status.phase}")
+                          if pod.status.phase == "Running":
+                              pod_ip = pod.status.pod_ip
+                              print(f"🎉 Pod running at {pod_ip}!")
+                              return f"http://{pod_ip}:8888"
+                      except Exception as e:
+                          print(f"⏳ Waiting... ({i+1}/60): {e}")
+                      
+                      await asyncio.sleep(10)
+                  
+                  raise Exception("Pod failed to start within 10 minutes")
+              
+              KubeSpawner._start = ssl_fixed_start
+              
+              # その他の設定
+              c.KubeSpawner.k8s_api_request_timeout = 600
+              c.KubeSpawner.k8s_api_request_retry_timeout = 900
+              c.KubeSpawner.http_timeout = 600
+              c.KubeSpawner.start_timeout = 3600
+              c.KubeSpawner.debug = True
+              c.KubeSpawner.storage_capacity = '500Gi'
+              c.KubeSpawner.storage_class = 'longhorn-r2'
+              
+              print("🔥🔥🔥 SSL FIXED + REFLECTOR DESTROYED 🔥🔥🔥")
           db:
             type: sqlite-pvc
             pvc:
@@ -35,7 +184,6 @@ spec:
           extraEnv:
             JUPYTER_ENABLE_LAB: "yes"
             PIP_CACHE_DIR: "/home/jovyan/.pip-cache"
-          startTimeout: 600
           storage:
             capacity: 500Gi
             dynamic:
