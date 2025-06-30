@@ -6,59 +6,45 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://charts.bitnami.com/bitnami
+    repoURL: https://hub.jupyter.org/helm-chart/
     chart: jupyterhub
     targetRevision: "*"
     helm:
       values: |
         hub:
-          configuration: |
-            Chart:
-              Name: {{ .Chart.Name }}
-              Version: {{ .Chart.Version }}
-            Release:
-              Name: {{ .Release.Name }}
-              Namespace: {{ .Release.Namespace }}
-              Service: {{ .Release.Service }}
-            hub:
-              config:
-                JupyterHub:
-                  admin_access: true
-                  authenticator_class: jupyterhub.auth.NullAuthenticator
-                Authenticator:
-                  allow_all: true
-              db:
-                type: postgres
-                url: postgresql://postgres:postgres@postgres-postgresql-ha-pgpool.postgres.svc.cluster.local
-            singleuser:
-              cloudMetadata:
-                blockWithIptables: false
           config:
             JupyterHub:
-              authenticator_class: jupyterhub.auth.NullAuthenticator
+              authenticator_class: dummy
+            DummyAuthenticator:
+              password: ""
             Authenticator:
               allow_all: true
+          db:
+            type: postgres
+            url: postgres://postgres:postgres@postgres-postgresql-ha-pgpool.postgres.cluster.local:5432/jupyterhub
         proxy:
+          secretToken: ""
           service:
             type: ClusterIP
-            port: 80
-        imagePuller:
-          enabled: false
+            ports:
+              http: 80
         singleuser:
-          extraEnvVars:
-            - name: JUPYTER_ENABLE_LAB
-              value: "yes"
-            - name: PIP_CACHE_DIR
-              value: "/home/jovyan/.pip-cache"
+          defaultUrl: "/lab"
+          extraEnv:
+            JUPYTER_ENABLE_LAB: "yes"
+            PIP_CACHE_DIR: "/home/jovyan/.pip-cache"
+          storage:
+            capacity: 500Gi
+            dynamic:
+              storageClass: "longhorn-r2"
+        prePuller:
+          hook:
+            enabled: false
+          continuous:
+            enabled: false
         postgresql:
           enabled: false
-        externalDatabase:
-          host: postgres-postgresql-ha-pgpool.postgres.svc.cluster.local
-          port: 5432
-          user: postgres
-          database: jupyterhub
-          existingSecret: ""
-          password: postgres
+
   destination:
     server: https://kubernetes.default.svc
     namespace: jupyter
