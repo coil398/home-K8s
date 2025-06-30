@@ -20,14 +20,16 @@ spec:
             Authenticator:
               allow_all: true
           db:
-            type: postgres
-            url: postgres://postgres:postgres@postgres-postgresql-ha-pgpool.postgres.cluster.local:5432/jupyterhub
+            type: sqlite-pvc
+            pvc:
+              accessModes:
+                - ReadWriteOnce
+              storage: 1Gi
+              storageClassName: "longhorn-r2"
         proxy:
           secretToken: ""
           service:
             type: ClusterIP
-            ports:
-              http: 80
         singleuser:
           defaultUrl: "/lab"
           extraEnv:
@@ -42,8 +44,6 @@ spec:
             enabled: false
           continuous:
             enabled: false
-        postgresql:
-          enabled: false
 
   destination:
     server: https://kubernetes.default.svc
