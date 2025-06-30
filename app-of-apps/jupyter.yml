@@ -35,6 +35,7 @@ spec:
           extraEnv:
             JUPYTER_ENABLE_LAB: "yes"
             PIP_CACHE_DIR: "/home/jovyan/.pip-cache"
+          startTimeout: 600
           storage:
             capacity: 500Gi
             dynamic:
