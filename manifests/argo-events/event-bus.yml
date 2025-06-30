@@ -7,6 +7,6 @@ spec:
     native:
       replicas: 3
       persistence:
-        storageClass: longhorn-r2
+        storageClassName: longhorn-r2
         accessMode: ReadWriteOnce
         volumeSize: 10Gi
