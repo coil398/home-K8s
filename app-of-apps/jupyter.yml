@@ -33,6 +33,11 @@ spec:
             singleuser:
               cloudMetadata:
                 blockWithIptables: false
+          config:
+            JupyterHub:
+              authenticator_class: jupyterhub.auth.NullAuthenticator
+            Authenticator:
+              allow_all: true
         proxy:
           service:
             type: ClusterIP
