@@ -19,7 +19,6 @@ spec:
               password: ""
             Authenticator:
               allow_all: true
-              auto_login: true
           db:
             type: sqlite-pvc
             pvc:
