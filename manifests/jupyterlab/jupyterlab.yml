@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyterlab
+  labels:
+    app: jupyterlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyterlab
+  template:
+    metadata:
+      labels:
+        app: jupyterlab
+    spec:
+      containers:
+        - name: jupyterlab
+          image: jupyter/datascience-notebook:latest
+          ports:
+            - containerPort: 8888
+              name: jupyter
+          env:
+            - name: JUPYTER_ENABLE_LAB
+              value: "yes"
+            - name: JUPYTER_TOKEN
+              value: ""
+            - name: JUPYTER_PASSWORD
+              value: ""
+            - name: JUPYTER_ALLOW_ORIGIN
+              value: "*"
+            - name: JUPYTER_DISABLE_CHECK_XSRF
+              value: "1"
+            - name: GRANT_SUDO
+              value: "yes"
+            - name: CHOWN_HOME
+              value: "yes"
+            - name: CHOWN_HOME_OPTS
+              value: "-R"
+          volumeMounts:
+            - name: workspace
+              mountPath: /home/jovyan/work
+            - name: jupyter-config
+              mountPath: /home/jovyan/.jupyter
+          livenessProbe:
+            httpGet:
+              path: /lab/api/status
+              port: 8888
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /lab/api/status
+              port: 8888
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+      volumes:
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: jupyterlab-workspace
+        - name: jupyter-config
+          persistentVolumeClaim:
+            claimName: jupyterlab-config
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jupyterlab-workspace
+  namespace: jupyter
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+  storageClassName: longhorn-r2
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jupyterlab-config
+  namespace: jupyter
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: longhorn-r2
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyterlab
+  namespace: jupyter
+  labels:
+    app: jupyterlab
+spec:
+  selector:
+    app: jupyterlab
+  ports:
+    - port: 8888
+      targetPort: 8888
+      name: jupyter
+      protocol: TCP
+  type: ClusterIP
