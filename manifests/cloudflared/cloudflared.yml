@@ -124,7 +124,7 @@ data:
     - hostname: argo-workflows.coil398.io
       service: http://argo-workflows-server.argo-workflows.svc.cluster.local:2746
     - hostname: jupyterlab.coil398.io
-      service: http://proxy-public.jupyter.svc.cluster.local:80
+      service: http://jupyterlab.jupyter.svc.cluster.local:8888
     - hostname: k8s.coil398.io
       service: hello_world
     - service: http_status:404

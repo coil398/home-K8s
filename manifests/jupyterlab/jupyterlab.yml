@@ -20,17 +20,21 @@ spec:
           ports:
             - containerPort: 8888
               name: jupyter
+          command: ["jupyter"]
+          args:
+            - lab
+            - --ip=0.0.0.0
+            - --port=8888
+            - --no-browser
+            - --allow-root
+            - --NotebookApp.token=''
+            - --NotebookApp.password=''
+            - --NotebookApp.disable_check_xsrf=True
+            - --NotebookApp.allow_origin='*'
+            - --NotebookApp.allow_remote_access=True
           env:
             - name: JUPYTER_ENABLE_LAB
               value: "yes"
-            - name: JUPYTER_TOKEN
-              value: ""
-            - name: JUPYTER_PASSWORD
-              value: ""
-            - name: JUPYTER_ALLOW_ORIGIN
-              value: "*"
-            - name: JUPYTER_DISABLE_CHECK_XSRF
-              value: "1"
             - name: GRANT_SUDO
               value: "yes"
             - name: CHOWN_HOME
