@@ -23,17 +23,13 @@ spec:
             [
               "sh",
               "-c",
-              "chown -R 1000:100 /home/jovyan/work /home/jovyan/.jupyter /home/jovyan/.bashrc && chmod -R 755 /home/jovyan/work /home/jovyan/.jupyter /home/jovyan/.bashrc",
+              "chown -R 1000:100 /home/jovyan && chmod -R 755 /home/jovyan",
             ]
           securityContext:
             runAsUser: 0
           volumeMounts:
             - name: workspace
-              mountPath: /home/jovyan/work
-            - name: jupyter-config
-              mountPath: /home/jovyan/.jupyter
-            - name: jupyter-bashrc
-              mountPath: /home/jovyan/.bashrc
+              mountPath: /home/jovyan
       containers:
         - name: jupyterlab
           image: jupyter/datascience-notebook:latest
@@ -69,11 +65,7 @@ spec:
               value: "100"
           volumeMounts:
             - name: workspace
-              mountPath: /home/jovyan/work
-            - name: jupyter-config
-              mountPath: /home/jovyan/.jupyter
-            - name: jupyter-bashrc
-              mountPath: /home/jovyan/.bashrc
+              mountPath: /home/jovyan
           livenessProbe:
             httpGet:
               path: /lab/api/status
@@ -92,12 +84,6 @@ spec:
         - name: workspace
           persistentVolumeClaim:
             claimName: jupyterlab-workspace
-        - name: jupyter-config
-          persistentVolumeClaim:
-            claimName: jupyterlab-config
-        - name: jupyter-bashrc
-          persistentVolumeClaim:
-            claimName: jupyterlab-bashrc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -110,32 +96,6 @@ spec:
   resources:
     requests:
       storage: 500Gi
-  storageClassName: longhorn-r2
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: jupyterlab-config
-  namespace: jupyter
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
-  storageClassName: longhorn-r2
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: jupyterlab-bashrc
-  namespace: jupyter
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Mi
   storageClassName: longhorn-r2
 ---
 apiVersion: v1
