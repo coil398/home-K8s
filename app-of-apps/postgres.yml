@@ -29,6 +29,9 @@ spec:
           password: postgres
           database: db
           replicaCount: 2
+          repmgrUsername: repmgr
+          repmgrPassword: repmgr
+          repmgrDatabase: repmgr
         pgpool:
           enabled: true
           replicaCount: 1
