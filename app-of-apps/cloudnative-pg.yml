@@ -1,0 +1,115 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudnative-pg-operator
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cnpg-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - Replace=true
+  source:
+    repoURL: https://cloudnative-pg.github.io/charts
+    chart: cloudnative-pg
+    targetRevision: "*"
+    helm:
+      values: |
+        config:
+          create: true
+          clusterWide: true
+        crds:
+          create: true
+        monitoring:
+          enabled: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: timescaledb-cluster
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: postgres
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  source:
+    repoURL: https://cloudnative-pg.github.io/charts
+    chart: cluster
+    targetRevision: "*"
+    helm:
+      values: |
+        imageCatalog:
+          create: true
+          images:
+            - image: timescale/timescaledb-ha:pg16.9-ts2.21.0-all-oss
+              major: 16
+              minor: 9
+
+        cluster:
+          name: timescaledb
+          labels:
+            release: kube-prometheus-stack
+          instances: 2
+          imageCatalogRef:
+            apiGroup: postgresql.cnpg.io
+            kind: ImageCatalog
+            name: timescaledb-cluster
+            major: 16
+          postgresUID: 1000
+          postgresGID: 1000
+          postgresql:
+            parameters:
+              max_connections: "100"
+              shared_buffers: 256MB
+            shared_preload_libraries:
+              - timescaledb
+
+          storage:
+            size: 500Gi
+            storageClass: longhorn-r2
+
+          monitoring:
+            enabled: true
+            podMonitor:
+              enabled: true
+              interval: 30s
+
+          bootstrap:
+            initdb:
+              database: db
+              owner: postgres
+              secret:
+                name: postgres-credentials
+              postInitSQL:
+                - CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+
+        secrets:
+          - name: postgres-credentials
+            type: kubernetes.io/basic-auth
+            data:
+              username: postgres
+              password: postgres
+
+        backups:
+          enabled: false
+
+        poolers:
+          - name: rw
+            type: rw
+            poolMode: transaction
+            instances: 1
+            monitoring:
+              enabled: true
