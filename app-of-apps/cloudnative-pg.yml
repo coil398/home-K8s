@@ -32,6 +32,25 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  name: timescaledb-secret
+  namespace: argocd
+spec:
+  destination:
+    namespace: postgres
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: manifests/timescaledb
+    repoURL: https://github.com/coil398/home-k8s
+    targetRevision: main
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
   name: timescaledb-cluster
   namespace: argocd
 spec:
@@ -70,6 +89,8 @@ spec:
             major: 16
           postgresUID: 1000
           postgresGID: 1000
+          enableSuperuserAccess: true
+          superuserSecret: postgres-credentials
           postgresql:
             parameters:
               max_connections: "100"
@@ -91,17 +112,8 @@ spec:
             initdb:
               database: db
               owner: postgres
-              secret:
-                name: postgres-credentials
               postInitSQL:
                 - CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
-
-        secrets:
-          - name: postgres-credentials
-            type: kubernetes.io/basic-auth
-            data:
-              username: postgres
-              password: postgres
 
         backups:
           enabled: false
