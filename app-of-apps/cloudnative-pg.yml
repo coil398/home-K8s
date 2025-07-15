@@ -27,7 +27,9 @@ spec:
         crds:
           create: true
         monitoring:
-          enabled: true
+          podMonitorEnabled: true
+          podMonitorAdditionalLabels:
+            release: kube-prometheus-stack
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -107,6 +109,8 @@ spec:
             podMonitor:
               enabled: true
               interval: 30s
+              labels:
+                release: kube-prometheus-stack
 
         backups:
           enabled: false
@@ -118,3 +122,8 @@ spec:
             instances: 2
             monitoring:
               enabled: true
+              podMonitor:
+                enabled: true
+                interval: 30s
+                labels:
+                  release: kube-prometheus-stack
