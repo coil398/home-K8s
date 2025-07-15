@@ -122,6 +122,6 @@ spec:
           - name: rw
             type: rw
             poolMode: transaction
-            instances: 1
+            instances: 2
             monitoring:
               enabled: true
