@@ -108,13 +108,6 @@ spec:
               enabled: true
               interval: 30s
 
-          bootstrap:
-            initdb:
-              database: db
-              owner: postgres
-              postInitSQL:
-                - CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
-
         backups:
           enabled: false
 
