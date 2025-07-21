@@ -17,7 +17,7 @@ spec:
   source:
     repoURL: registry-1.docker.io/bitnamicharts
     chart: postgresql-ha
-    targetRevision: 16.0.11
+    targetRevision: "*"
     helm:
       values: |
         persistence:
@@ -37,6 +37,10 @@ spec:
           replicaCount: 2
           adminUsername: admin
           adminPassword: postgres
+          useLoadBalancing: true
+          disableLoadBalancingOnWrite: "transaction"
+          srCheckUsername: repmgr
+          srCheckPassword: repmgr
         volumePermissions:
           enabled: true
         metrics:
