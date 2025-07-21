@@ -41,6 +41,10 @@ spec:
           disableLoadBalancingOnWrite: "transaction"
           srCheckUsername: repmgr
           srCheckPassword: repmgr
+          numInitChildren: "16"
+          maxPool: "15"
+          childMaxConnections: "3"
+          connectionLifeTime: "300"
         volumePermissions:
           enabled: true
         metrics:
