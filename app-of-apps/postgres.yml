@@ -34,7 +34,7 @@ spec:
           repmgrDatabase: repmgr
         pgpool:
           enabled: true
-          replicaCount: 1
+          replicaCount: 2
           adminUsername: admin
           adminPassword: postgres
         volumePermissions:
