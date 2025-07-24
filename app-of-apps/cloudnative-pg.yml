@@ -34,7 +34,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: timescaledb-secret
+  name: postgres-secret
   namespace: argocd
 spec:
   destination:
@@ -42,7 +42,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: manifests/timescaledb
+    path: manifests/postgres
     repoURL: https://github.com/coil398/home-k8s
     targetRevision: main
   syncPolicy:
@@ -53,7 +53,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: timescaledb-cluster
+  name: postgres-cluster
   namespace: argocd
 spec:
   project: default
@@ -80,14 +80,14 @@ spec:
               minor: 9
 
         cluster:
-          name: timescaledb
+          name: postgres
           labels:
             release: kube-prometheus-stack
           instances: 2
           imageCatalogRef:
             apiGroup: postgresql.cnpg.io
             kind: ImageCatalog
-            name: timescaledb-cluster
+            name: postgres-cluster
             major: 16
           postgresUID: 1000
           postgresGID: 1000

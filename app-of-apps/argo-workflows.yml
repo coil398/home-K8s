@@ -45,7 +45,7 @@ spec:
           persistence:
             archive: true
             postgresql:
-              host: "postgres-postgresql-ha-pgpool.postgres.svc.cluster.local"
+              host: "postgres-cluster-pooler-rw.postgres.svc.cluster.local"
               port: 5432
               database: "argo_workflows"
               tableName: "argo_workflows"
