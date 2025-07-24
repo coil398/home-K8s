@@ -1,0 +1,101 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: harbor
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: harbor
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  source:
+    repoURL: https://helm.goharbor.io
+    chart: harbor
+    targetRevision: "*"
+    helm:
+      values: |
+        externalURL: http://harbor.harbor.svc.cluster.local
+
+        harborAdminPassword: password
+
+        expose:
+          type: ClusterIP
+          tls:
+            enabled: false
+          clusterIP:
+            name: harbor
+            ports:
+              httpPort: 80
+
+        database:
+          type: external
+          external:
+            host: postgres-cluster-pooler-rw.postgres.svc.cluster.local
+            port: 5432
+            username: postgres
+            password: postgres
+            coreDatabase: registry
+            sslmode: disable
+
+        redis:
+          type: external
+          external:
+            addr: "redis.redis.svc.cluster.local:26379"
+            sentinelMasterSet: "mymaster"
+            password: ""
+            coreDatabaseIndex: "0"
+            jobserviceDatabaseIndex: "1"
+            registryDatabaseIndex: "2"
+            trivyAdapterIndex: "5"
+
+        persistence:
+          enabled: true
+          resourcePolicy: "keep"
+          imageChartStorage:
+            type: s3
+            s3:
+              region: ap-northeast-1
+              bucket: harbor
+              accesskey: admin
+              secretkey: password
+              regionendpoint: "http://minio.minio.svc.cluster.local:9000"
+
+          persistentVolumeClaim:
+            registry:
+              storageClass: "longhorn-r2"
+              accessMode: ReadWriteOnce
+              size: 200Gi
+            chartmuseum:
+              storageClass: "longhorn-r2"
+              accessMode: ReadWriteOnce
+              size: 5Gi
+            jobservice:
+              jobLog:
+                storageClass: "longhorn-r2"
+                accessMode: ReadWriteOnce
+                size: 1Gi
+            trivy:
+              storageClass: "longhorn-r2"
+              accessMode: ReadWriteOnce
+              size: 5Gi
+
+        core:
+          replicas: 2
+        registry:
+          replicas: 2
+        jobservice:
+          replicas: 1
+        portal:
+          replicas: 1
+        chartmuseum:
+          enabled: true
+          replicas: 1
+        trivy:
+          enabled: true
+          replicas: 1
