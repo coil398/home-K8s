@@ -112,6 +112,10 @@ spec:
               labels:
                 release: kube-prometheus-stack
 
+          bootstrap:
+            initdb:
+              database: database
+
         backups:
           enabled: false
 

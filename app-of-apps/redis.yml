@@ -22,10 +22,6 @@ spec:
             enabled: true
             size: 50Gi
             storageClass: "longhorn-r2"
-          resources:
-            requests:
-              memory: 256Mi
-              cpu: 100m
 
         replica:
           replicaCount: 2
