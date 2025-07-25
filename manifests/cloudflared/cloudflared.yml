@@ -125,6 +125,8 @@ data:
       service: http://argo-workflows-server.argo-workflows.svc.cluster.local:2746
     - hostname: jupyterlab.coil398.io
       service: http://jupyterlab.jupyter.svc.cluster.local:8888
+    - hostname: harbor.coil398.io
+      service: http://harbor-portal.harbor.svc.cluster.local:80
     - hostname: k8s.coil398.io
       service: hello_world
     - service: http_status:404

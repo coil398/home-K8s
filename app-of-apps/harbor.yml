@@ -20,7 +20,7 @@ spec:
     targetRevision: "*"
     helm:
       values: |
-        externalURL: http://harbor.harbor.svc.cluster.local
+        externalURL: https://harbor.coil398.io
 
         harborAdminPassword: password
 
