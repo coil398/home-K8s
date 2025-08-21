@@ -11,13 +11,27 @@ spec:
     targetRevision: 17.0.9
     helm:
       values: |
+        mode: distributed
+        statefulset:
+          replicaCount: 4
+          drivesPerNode: 1
         auth:
           rootUser: admin
           rootPassword: password
         persistence:
           enabled: true
           size: 1000Gi
-          storageClass: "longhorn-r2"
+          storageClass: "nfs-rwx"
+        defaultInitContainers:
+          volumePermissions:
+            enabled: true
+        podSecurityContext:
+          enabled: true
+          fsGroup: 1001
+        containerSecurityContext:
+          enabled: true
+          runAsUser: 1001
+          runAsGroup: 1001
         service:
           type: ClusterIP
         console:
