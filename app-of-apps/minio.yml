@@ -27,11 +27,11 @@ spec:
             enabled: true
         podSecurityContext:
           enabled: true
-          fsGroup: 1001
+          fsGroup: 10
         containerSecurityContext:
           enabled: true
-          runAsUser: 1001
-          runAsGroup: 1001
+          runAsUser: 1000
+          runAsGroup: 10
         service:
           type: ClusterIP
         console:
