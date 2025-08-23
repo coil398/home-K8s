@@ -58,6 +58,7 @@ spec:
           enabled: true
           resourcePolicy: "keep"
           imageChartStorage:
+            disableredirect: true
             type: s3
             s3:
               region: ap-northeast-1
@@ -65,6 +66,8 @@ spec:
               accesskey: admin
               secretkey: password
               regionendpoint: "http://minio.minio.svc.cluster.local:9000"
+              secure: false
+              v4auth: true
 
           persistentVolumeClaim:
             registry:
