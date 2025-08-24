@@ -127,6 +127,8 @@ data:
       service: http://jupyterlab.jupyter.svc.cluster.local:8888
     - hostname: harbor.coil398.io
       service: http://harbor.harbor.svc.cluster.local:80
+    - hostname: seaweedfs.coil398.io
+      service: http://seaweedfs-filer.seaweedfs.svc.cluster.local:8888
     - hostname: k8s.coil398.io
       service: hello_world
     - service: http_status:404
