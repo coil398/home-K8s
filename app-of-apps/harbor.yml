@@ -59,45 +59,33 @@ spec:
           resourcePolicy: "keep"
           imageChartStorage:
             disableredirect: true
-            type: s3
-            s3:
-              region: us-east-1
-              bucket: harbor
-              accesskey: dummy
-              secretkey: dummy
-              regionendpoint: "http://seaweedfs-s3.seaweedfs.svc.cluster.local:8333"
-              secure: false
-              skipverify: true
-              v4auth: false
-              forcepathstyle: true
-              chunksize: "5242880"
-              multipartcopythresholdsize: "67108864"
-              multipartcopychunksize: "8388608"
-              multipartcopymaxconcurrency: 10
+            type: filesystem
+            filesystem:
+              rootdirectory: /storage
 
           persistentVolumeClaim:
             registry:
-              storageClass: "longhorn-r2"
-              accessMode: ReadWriteOnce
+              storageClass: "nfs-rwx"
+              accessMode: ReadWriteMany
               size: 200Gi
             chartmuseum:
-              storageClass: "longhorn-r2"
+              storageClass: "nfs-rwx"
               accessMode: ReadWriteOnce
               size: 5Gi
             jobservice:
               jobLog:
-                storageClass: "longhorn-r2"
+                storageClass: "nfs-rwx"
                 accessMode: ReadWriteOnce
                 size: 1Gi
             trivy:
-              storageClass: "longhorn-r2"
+              storageClass: "nfs-rwx"
               accessMode: ReadWriteOnce
               size: 5Gi
 
         core:
           replicas: 2
         registry:
-          replicas: 2
+          replicas: 1
         jobservice:
           replicas: 1
         portal:
