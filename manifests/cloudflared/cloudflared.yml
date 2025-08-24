@@ -127,6 +127,8 @@ data:
       service: http://harbor.harbor.svc.cluster.local:80
     - hostname: seaweedfs.coil398.io
       service: http://seaweedfs-filer-vip.seaweedfs.svc.cluster.local:8888
+    - hostname: registry.coil398.io
+      service: http://registry.docker-registry.svc.cluster.local:5000
     - hostname: k8s.coil398.io
       service: hello_world
     - service: http_status:404

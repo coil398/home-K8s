@@ -1,0 +1,82 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: docker-registry
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: docker-registry
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  source:
+    repoURL: https://helm.twun.io
+    chart: docker-registry
+    targetRevision: "*"
+    helm:
+      values: |
+        replicaCount: 2
+
+        service:
+          name: registry
+          type: ClusterIP
+          port: 5000
+
+        persistence:
+          enabled: false
+
+        storage: s3
+
+        secrets:
+          s3:
+            accessKey: "registry-access-key"
+            secretKey: "registry-secret-key"
+
+        s3:
+          region: "us-east-1"
+          regionEndpoint: "http://seaweedfs-s3.seaweedfs.svc.cluster.local:8333"
+          bucket: "registry"
+          encrypt: false
+          secure: false
+          v4Auth: true
+          forcepathstyle: true
+          skipverify: true
+
+        podSecurityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          fsGroup: 1000
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+
+        nodeSelector: {}
+        tolerations: []
+        affinity: {}
+
+        podAnnotations: {}
+        podLabels: {}
+
+        serviceAccount:
+          create: false
+          name: ""
+          annotations: {}
+
+        extraVolumes:
+        - name: registry-tmp
+          emptyDir: {}
+
+        extraVolumeMounts:
+        - name: registry-tmp
+          mountPath: /tmp
