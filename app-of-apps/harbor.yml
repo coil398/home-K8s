@@ -68,6 +68,8 @@ spec:
               regionendpoint: "http://minio.minio.svc.cluster.local:9000"
               secure: false
               v4auth: true
+              forcepathstyle: true
+              disableredirect: true
               chunksize: "5242880"
               multipartcopychunksize: "5242880"
               multipartcopymaxconcurrency: 100
