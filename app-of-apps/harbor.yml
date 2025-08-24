@@ -68,6 +68,9 @@ spec:
               regionendpoint: "http://minio.minio.svc.cluster.local:9000"
               secure: false
               v4auth: true
+              chunksize: 5242880
+              multipartcopychunksize: 33554432
+              multipartcopymaxconcurrency: 100
 
           persistentVolumeClaim:
             registry:
