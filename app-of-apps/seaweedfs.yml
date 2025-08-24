@@ -1,0 +1,170 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: seaweedfs
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://seaweedfs.github.io/seaweedfs/helm
+    chart: seaweedfs
+    targetRevision: 4.0.393
+    helm:
+      values: |
+        # Global settings
+        global:
+          registry: ""
+          repository: ""
+          imageName: chrislusf/seaweedfs
+          imagePullPolicy: IfNotPresent
+          imagePullSecrets: ""
+          restartPolicy: Always
+          loggingLevel: 1
+          enableSecurity: false
+          serviceAccountName: "seaweedfs"
+          automountServiceAccountToken: true
+          # Security contexts
+          podSecurityContext:
+            enabled: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          containerSecurityContext:
+            enabled: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+
+        # Master nodes (metadata management) - 可用性のため2台
+        master:
+          enabled: true
+          repository: null
+          imageName: null
+          imageTag: null
+          restartPolicy: null
+          replicas: 3
+          port: 9333
+          grpcPort: 19333
+          ipBind: "0.0.0.0"
+          volumePreallocate: false
+
+          # Master configuration
+          config: |
+            # Add any specific master config here
+
+          # Persistence for master metadata
+          data:
+            type: "persistentVolumeClaim"
+            size: "10Gi"
+            storageClass: "nfs-rwx"
+
+          # Logs
+          logs:
+            type: "persistentVolumeClaim"
+            size: "2Gi"
+            storageClass: "nfs-rwx"
+
+          service:
+            type: "ClusterIP"
+
+          # Resource limits
+          resources: {}
+          nodeSelector: {}
+          tolerations: []
+          affinity: ""
+
+        # Volume servers (data storage) - 個人用なので2台で十分
+        volume:
+          enabled: true
+          repository: null
+          imageName: null
+          imageTag: null
+          restartPolicy: null
+          replicas: 2
+          port: 8080
+          grpcPort: 18080
+          ipBind: "0.0.0.0"
+
+          # Data persistence
+          dataDirs:
+            - name: data1
+              type: "persistentVolumeClaim"
+              size: "500Gi"
+              storageClass: "nfs-rwx"
+
+          # Logs  
+          logs:
+            type: "persistentVolumeClaim"
+            size: "2Gi"
+            storageClass: "nfs-rwx"
+
+          service:
+            type: "ClusterIP"
+
+          # Resource limits
+          resources: {}
+          nodeSelector: {}
+          tolerations: []
+          affinity: ""
+
+        # Filer (file system interface + S3 API) - 可用性のため2台
+        filer:
+          enabled: true
+          repository: null
+          imageName: null
+          imageTag: null
+          restartPolicy: null
+          replicas: 2
+          port: 8888
+          grpcPort: 18888
+
+          # Filer configuration
+          config: |
+            [leveldb2]
+            # local on disk, mostly for simple single-machine setup, fairly scalable
+            # faster than previous leveldb, recommended.
+            enabled = true
+            dir = "/data/filerldb2"
+
+          # Enable S3 API on filer
+          s3:
+            enabled: true
+            port: 8333
+            httpsPort: 0
+            allowEmptyFolder: true
+            domainName: ""
+            enableAuth: false
+
+          # Data persistence
+          data:
+            type: "persistentVolumeClaim"
+            size: "10Gi"
+            storageClass: "nfs-rwx"
+
+          # Logs
+          logs:
+            type: "persistentVolumeClaim" 
+            size: "2Gi"
+            storageClass: "nfs-rwx"
+
+          service:
+            type: "ClusterIP"
+
+          # Resource limits
+          resources: {}
+          nodeSelector: {}
+          tolerations: []
+          affinity: ""
+
+        # Ingress configuration - Cloudflare経由なので無効化
+        ingress:
+          enabled: false
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: seaweedfs
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
