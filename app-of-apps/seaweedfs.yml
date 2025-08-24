@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://seaweedfs.github.io/seaweedfs/helm
     chart: seaweedfs
-    targetRevision: 4.0.393
+    targetRevision: "*"
     helm:
       values: |
         # Global settings
@@ -34,7 +34,6 @@ spec:
             runAsUser: 1000
             allowPrivilegeEscalation: false
 
-        # Master nodes (metadata management) - 可用性のため2台
         master:
           enabled: true
           repository: null
@@ -71,8 +70,8 @@ spec:
           nodeSelector: {}
           tolerations: []
           affinity: ""
+          volumeSizeLimitMB: 30000
 
-        # Volume servers (data storage) - 個人用なので2台で十分
         volume:
           enabled: true
           repository: null
@@ -88,10 +87,10 @@ spec:
           dataDirs:
             - name: data1
               type: "persistentVolumeClaim"
-              size: "500Gi"
+              size: "1000Gi"
               storageClass: "nfs-rwx"
+              maxVolumes: 50
 
-          # Logs  
           logs:
             type: "persistentVolumeClaim"
             size: "2Gi"
@@ -100,13 +99,11 @@ spec:
           service:
             type: "ClusterIP"
 
-          # Resource limits
           resources: {}
           nodeSelector: {}
           tolerations: []
           affinity: ""
 
-        # Filer (file system interface + S3 API) - 可用性のため2台
         filer:
           enabled: true
           repository: null
@@ -117,7 +114,6 @@ spec:
           port: 8888
           grpcPort: 18888
 
-          # Filer configuration
           config: |
             [leveldb2]
             # local on disk, mostly for simple single-machine setup, fairly scalable
@@ -125,7 +121,6 @@ spec:
             enabled = true
             dir = "/data/filerldb2"
 
-          # Enable S3 API on filer
           s3:
             enabled: true
             port: 8333
@@ -155,7 +150,6 @@ spec:
           tolerations: []
           affinity: ""
 
-        # Ingress configuration - Cloudflare経由なので無効化
         ingress:
           enabled: false
 
