@@ -66,6 +66,14 @@ spec:
               accesskey: dummy
               secretkey: dummy
               regionendpoint: "http://seaweedfs-s3.seaweedfs.svc.cluster.local:8333"
+              secure: false
+              skipverify: true
+              v4auth: false
+              forcepathstyle: true
+              chunksize: "5242880"
+              multipartcopythresholdsize: "67108864"
+              multipartcopychunksize: "8388608"
+              multipartcopymaxconcurrency: 10
 
           persistentVolumeClaim:
             registry:
