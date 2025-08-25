@@ -127,6 +127,17 @@ data:
       service: http://harbor.harbor.svc.cluster.local:80
       originRequest:
         disableChunkedEncoding: true
+        noTLSVerify: true
+        http2Origin: false
+        connectTimeout: 60s
+        tlsTimeout: 60s
+        tcpKeepAlive: 60s
+        keepAliveConnections: 10
+        keepAliveTimeout: 90s
+        proxyConnectTimeout: 60s
+        httpHostHeader: harbor.coil398.io
+        noHappyEyeballs: false
+        proxyType: ""
     - hostname: seaweedfs.coil398.io
       service: http://seaweedfs-filer-vip.seaweedfs.svc.cluster.local:8888
     - hostname: k8s.coil398.io

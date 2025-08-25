@@ -86,6 +86,7 @@ spec:
           replicas: 2
         registry:
           replicas: 1
+          relativeurls: true
         jobservice:
           replicas: 1
         portal:
